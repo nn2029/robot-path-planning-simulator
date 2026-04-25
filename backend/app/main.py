@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from math import isfinite
 from typing import Literal
 
@@ -12,6 +13,14 @@ from pydantic import BaseModel, Field
 from app.planners import GridMap, GridRRTPlanner, astar, dijkstra
 
 AlgorithmName = Literal["astar", "dijkstra", "rrt"]
+
+
+def parse_cors_origins() -> list[str]:
+    raw_origins = os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173",
+    )
+    return [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
 
 
 class Coordinate(BaseModel):
@@ -48,7 +57,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    # Vercel preview URLs are injected as CORS_ORIGINS after deployment.
+    allow_origins=parse_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -93,4 +103,3 @@ def plan_path(request: PlanRequest) -> PlanResponse:
         path=[Coordinate(x=x, y=y) for x, y in result.path],
         visited=[Coordinate(x=x, y=y) for x, y in result.visited],
     )
-
