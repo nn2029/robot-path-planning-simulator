@@ -1,10 +1,9 @@
 """Grid primitives shared by all planners.
 
-This simulator models the world as a 4-connected occupancy grid. That is a
-deliberately teachable abstraction: it makes A* and Dijkstra easy to inspect,
-but it hides many production robotics concerns such as robot footprint
-inflation, localization uncertainty, dynamic obstacles, terrain costmaps, and
-vehicle kinematics.
+This simulator models the world as a 4-connected occupancy grid. The tradeoff
+is clarity: A* and Dijkstra are easy to inspect, while robot footprint,
+localization uncertainty, dynamic obstacles, terrain costs, and kinematics are
+kept outside the first pass.
 """
 
 from __future__ import annotations

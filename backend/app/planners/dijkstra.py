@@ -8,7 +8,12 @@ from itertools import count
 from .grid import Coord, GridMap, PlannerResult, reconstruct_path
 
 
-def dijkstra(grid: GridMap, start: Coord, goal: Coord) -> PlannerResult:
+def dijkstra(
+    grid: GridMap,
+    start: Coord,
+    goal: Coord,
+    max_expansions: int | None = None,
+) -> PlannerResult:
     """Find a shortest grid path without a goal-directed heuristic.
 
     Dijkstra is a useful baseline because it is optimal with non-negative edge
@@ -37,6 +42,11 @@ def dijkstra(grid: GridMap, start: Coord, goal: Coord) -> PlannerResult:
             continue
         visited.add(current)
         visited_order.append(current)
+        if max_expansions is not None and len(visited_order) > max_expansions:
+            return PlannerResult.failure(
+                visited_order,
+                message="Search expansion limit reached",
+            )
 
         if current == goal:
             path = reconstruct_path(came_from, current)
@@ -52,4 +62,3 @@ def dijkstra(grid: GridMap, start: Coord, goal: Coord) -> PlannerResult:
             heappush(open_heap, (candidate_cost, next(tie_breaker), neighbor))
 
     return PlannerResult.failure(visited_order)
-

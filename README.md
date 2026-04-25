@@ -1,6 +1,6 @@
 # 2D Robot Path Planning Simulator
 
-Browser-based 2D robot simulator for placing obstacles, start, and goal cells, then comparing A*, Dijkstra, and an RRT-style planner. The project is intentionally portfolio-friendly: the UI is interactive, while the Python planning modules stay pure and testable.
+Browser-based 2D robot simulator for placing obstacles, start, and goal cells, then comparing A*, Dijkstra, and an RRT-style planner. The UI is interactive, while the Python planning modules stay pure and testable.
 
 ## Features
 
@@ -8,7 +8,8 @@ Browser-based 2D robot simulator for placing obstacles, start, and goal cells, t
 - A*, Dijkstra, and RRT-style path planning with visited-cell visualization.
 - Stats panel for path cost, visited cells, obstacle count, runtime, and success state.
 - FastAPI-style backend with a small `/plan` endpoint over testable planner modules.
-- Deterministic unit tests for shortest-path behavior, unreachable maps, validation, and RRT-style expansion.
+- API limits for grid size, obstacle count, and search expansions.
+- Deterministic unit tests for shortest-path behavior, unreachable maps, validation, expansion limits, and RRT-style expansion.
 
 ## Architecture
 
@@ -19,6 +20,7 @@ flowchart LR
   Canvas -. optional REST .-> API["FastAPI /plan endpoint"]
   API --> Core["Pure Python planner modules"]
   Core --> Grid["GridMap occupancy model"]
+  API --> Limits["Grid + expansion limits"]
   Tests["Unit tests"] --> Core
 ```
 
@@ -119,4 +121,6 @@ The frontend is served on `http://localhost:5173`; the backend listens on `http:
 - Dijkstra uses the same grid model without a heuristic, so it is a useful baseline for showing how many more states can be expanded.
 - The RRT-style planner samples cells, finds the nearest tree node, and extends one grid step at a time. It is intentionally not optimal and may fail within the iteration budget.
 
-This grid model is a teaching layer. A production robotics planner would need robot footprint inflation, continuous collision checking, kinematic constraints, dynamic obstacle handling, localization uncertainty, map updates, recovery behaviors, and richer cost functions.
+The backend reports `expanded_nodes` and `duration_ms` for each request, and it enforces `MAX_GRID_CELLS`, `MAX_OBSTACLES`, `MAX_EXPANSIONS`, and `RRT_MAX_ITERATIONS`. Those limits make the API safer to expose because failed or oversized planning requests end predictably.
+
+This grid model is a teaching layer. A fielded robotics planner would need robot footprint inflation, continuous collision checking, kinematic constraints, dynamic obstacle handling, localization uncertainty, map updates, recovery behaviors, and richer cost functions.

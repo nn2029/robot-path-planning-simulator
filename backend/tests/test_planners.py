@@ -68,7 +68,13 @@ class PlannerCorrectnessTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "start is inside an obstacle"):
             astar(self.grid, (2, 0), self.goal)
 
+    def test_expansion_limit_stops_grid_search(self):
+        result = astar(self.grid, self.start, self.goal, max_expansions=2)
+
+        self.assertFalse(result.success)
+        self.assertEqual(result.message, "Search expansion limit reached")
+        self.assertGreaterEqual(len(result.visited), 2)
+
 
 if __name__ == "__main__":
     unittest.main()
-

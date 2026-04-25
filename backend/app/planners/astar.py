@@ -8,7 +8,12 @@ from itertools import count
 from .grid import Coord, GridMap, PlannerResult, manhattan, reconstruct_path
 
 
-def astar(grid: GridMap, start: Coord, goal: Coord) -> PlannerResult:
+def astar(
+    grid: GridMap,
+    start: Coord,
+    goal: Coord,
+    max_expansions: int | None = None,
+) -> PlannerResult:
     """Find a shortest grid path using A* with Manhattan distance.
 
     A* is usually the best first planner to show in a grid simulator because it
@@ -38,6 +43,11 @@ def astar(grid: GridMap, start: Coord, goal: Coord) -> PlannerResult:
             continue
         visited.add(current)
         visited_order.append(current)
+        if max_expansions is not None and len(visited_order) > max_expansions:
+            return PlannerResult.failure(
+                visited_order,
+                message="Search expansion limit reached",
+            )
 
         if current == goal:
             path = reconstruct_path(came_from, current)
@@ -57,4 +67,3 @@ def astar(grid: GridMap, start: Coord, goal: Coord) -> PlannerResult:
             )
 
     return PlannerResult.failure(visited_order)
-

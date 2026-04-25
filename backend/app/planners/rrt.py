@@ -64,9 +64,9 @@ class GridRRTPlanner:
     ) -> Coord | None:
         """Extend from ``nearest`` by one free grid cell toward ``sample``.
 
-        A production RRT would integrate the robot model over time and run a
-        collision check along the resulting segment. Here we pick the available
-        neighbor that most reduces distance to the sample while avoiding cycles.
+        On a real robot this step would integrate the vehicle model and check
+        the whole segment for collision. The grid version moves one cell so the
+        behavior stays visible in the UI.
         """
 
         candidates = [cell for cell in grid.neighbors4(nearest) if cell not in existing_nodes]
@@ -74,4 +74,3 @@ class GridRRTPlanner:
             return None
         candidates.sort(key=lambda cell: (squared_distance(cell, sample), cell[1], cell[0]))
         return candidates[0]
-
